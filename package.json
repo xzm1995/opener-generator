@@ -1,0 +1,22 @@
+{
+  "name": "opener-generator",
+  "version": "3.0.0",
+  "description": "智能开头素材库生成器 - 基于豆包API的内容创作工具",
+  "main": "opener-v3.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "content-generator",
+    "xiaohongshu",
+    "insurance",
+    "doubao",
+    "ai-writing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

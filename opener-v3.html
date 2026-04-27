@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开头素材库智能工作台 v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7C3AED',
+                        secondary: '#64748B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#1E293B',
+                        light: '#F8FAFC',
+                        sidebar: '#0F172A',
+                        sidebarHover: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+            .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; }
+            .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+            .card-shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
+            .card-hover { transition: all 0.2s ease; }
+            .card-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+            .tab-active { border-bottom: 2px solid #7C3AED; color: #7C3AED; font-weight: 600; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 左侧导航栏 -->
+        <aside class="w-64 bg-sidebar text-white flex flex-col">
+            <div class="p-5 border-b border-sidebarHover">
+                <h1 class="text-xl font-bold flex items-center">
+                    <i class="fa fa-magic mr-3 text-primary"></i>
+                    开头素材库
+                    <span class="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">v3.0</span>
+                </h1>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto scrollbar-thin py-4">
+                <ul class="space-y-1 px-3">
+                    <li><a href="#" class="flex items-center px-4 py-3 rounded-lg bg-primary text-white"><i class="fa fa-home w-5 mr-3"></i>智能生成工作台</a></li>
+                    <li><button type="button" onclick="document.getElementById('caseList').scrollIntoView({behavior: 'smooth'}); showToast('已定位到素材库')" class="sidebar-btn w-full text-left flex items-center px-4 py-3 rounded-lg hover:bg-sidebarHover transition-colors"><i class="fa fa-database w-5 mr-3"></i>素材库管理</button></li>
+                    <li><button type="button" onclick="document.getElementById('historyContainer').scrollIntoView({behavior: 'smooth'}); showToast('已定位到历史记录')" class="sidebar-btn w-full text-left flex items-center px-4 py-3 rounded-lg hover:bg-sidebarHover transition-colors"><i class="fa fa-history w-5 mr-3"></i>历史生成记录</button></li>
+                    <li><button type="button" onclick="document.getElementById('changeModelBtn').click();" class="sidebar-btn w-full text-left flex items-center px-4 py-3 rounded-lg hover:bg-sidebarHover transition-colors"><i class="fa fa-cog w-5 mr-3"></i>模型配置</button></li>
+                </ul>
+                
+                <div class="mt-8 px-4">
+                    <h3 class="text-xs uppercase text-gray-400 font-semibold mb-3">素材库分类</h3>
+                    <ul class="space-y-1" id="sidebarLibraryList">
+                        <li><button type="button" class="sidebar-library-link w-full text-left flex items-center px-4 py-2.5 rounded-lg hover:bg-sidebarHover transition-colors bg-sidebarHover" data-library="general"><i class="fa fa-bookmark w-5 mr-3 text-blue-400"></i>通用开头库</button></li>
+                        <li><button type="button" class="sidebar-library-link w-full text-left flex items-center px-4 py-2.5 rounded-lg hover:bg-sidebarHover transition-colors" data-library="depth"><i class="fa fa-bookmark w-5 mr-3 text-purple-400"></i>深度开头库</button></li>
+                        <li><button type="button" class="sidebar-library-link w-full text-left flex items-center px-4 py-2.5 rounded-lg hover:bg-sidebarHover transition-colors" data-library="team"><i class="fa fa-bookmark w-5 mr-3 text-green-400"></i>团队内部库</button></li>
+                        <li><button type="button" class="sidebar-library-link w-full text-left flex items-center px-4 py-2.5 rounded-lg hover:bg-sidebarHover transition-colors" data-library="industry"><i class="fa fa-bookmark w-5 mr-3 text-orange-400"></i>行业专属库</button></li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-sidebarHover">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-300">当前模型</span>
+                    <span class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">豆包专家模式</span>
+                </div>
+                <div class="text-xs text-gray-400">双库联动 · 实时同步</div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold flex items-center"><i class="fa fa-magic mr-3 text-primary"></i>智能开头生成工作台</h2>
+                    <div class="flex items-center space-x-4">
+                        <button id="syncBtn" class="flex items-center px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"><i class="fa fa-refresh mr-2"></i>同步飞书素材库</button>
+                        <img src="https://picsum.photos/id/64/40/40" alt="用户头像" class="w-8 h-8 rounded-full">
+                    </div>
+                </div>
+            </header>
+
+            <!-- 顶部提示栏 -->
+            <div id="corsWarning" class="hidden bg-yellow-50 border-b border-yellow-200 px-6 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center text-sm text-yellow-800">
+                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                        <span>检测到浏览器跨域限制，建议通过本地服务器访问此页面，或使用"复制提示词"功能</span>
+                    </div>
+                    <button onclick="document.getElementById('corsWarning').classList.add('hidden')" class="text-yellow-600 hover:text-yellow-800">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 scrollbar-thin">
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                    <!-- 左侧：案例选择和预览 -->
+                    <div class="xl:col-span-4 space-y-6">
+                        <div class="bg-white rounded-lg card-shadow">
+                            <div class="border-b border-gray-200">
+                                <div class="flex">
+                                    <button class="library-tab tab-active px-4 py-3 text-sm" data-library="general">通用开头库</button>
+                                    <button class="library-tab px-4 py-3 text-sm text-gray-500 hover:text-gray-700" data-library="depth">深度开头库</button>
+                                    <button class="library-tab px-4 py-3 text-sm text-gray-500 hover:text-gray-700" data-library="team">团队内部库</button>
+                                    <button class="library-tab px-4 py-3 text-sm text-gray-500 hover:text-gray-700" data-library="industry">行业专属库</button>
+                                </div>
+                            </div>
+                            <div class="p-4 max-h-80 overflow-y-auto scrollbar-thin">
+                                <div id="caseList" class="space-y-2"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg card-shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center"><i class="fa fa-eye mr-2 text-primary"></i>案例完整预览</h3>
+                            <div id="casePreview" class="space-y-4"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 中间：生成配置和提示词 -->
+                    <div class="xl:col-span-4 space-y-6">
+                        <div class="bg-white rounded-lg card-shadow p-5">
+                            <h3 class="text-lg font-semibold mb-5 flex items-center"><i class="fa fa-sliders mr-2 text-primary"></i>生成配置</h3>
+                            <form id="generatorForm" class="space-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">内容赛道</label>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <button type="button" class="track-btn px-3 py-1.5 text-sm bg-primary text-white rounded-lg" data-track="insurance">成人保险</button>
+                                        <button type="button" class="track-btn px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" data-track="finance">金融理财</button>
+                                        <button type="button" class="track-btn px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" data-track="health">健康医疗</button>
+                                        <button type="button" class="track-btn px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" data-track="education">教育学习</button>
+                                    </div>
+                                    <input type="text" id="customTrack" placeholder="或输入自定义赛道" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">文章主题</label>
+                                    <input type="text" id="topic" placeholder="例如：重疾险怎么买不被坑、投保如实告知注意事项" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">生成数量</label>
+                                        <select id="count" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            <option value="1">1条</option>
+                                            <option value="2">2条</option>
+                                            <option value="3" selected>3条</option>
+                                            <option value="5">5条</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">目标字数</label>
+                                        <div class="flex gap-2">
+                                            <select id="wordCountSelect" onchange="handleWordCountSelectChange()" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                <option value="100">约100字</option>
+                                                <option value="200" selected>约200字</option>
+                                                <option value="300">约300字</option>
+                                                <option value="500">约500字</option>
+                                                <option value="custom">自定义...</option>
+                                            </select>
+                                            <input type="number" id="wordCountCustom" min="50" max="2000" placeholder="输入字数" class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm hidden">
+                                        </div>
+                                        <input type="hidden" id="wordCount" value="200">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">特殊要求</label>
+                                    <textarea id="specialRequirements" rows="2" placeholder="例如：语气要亲切、加入具体数字、避免使用专业术语" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">写作原则</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center"><input type="checkbox" id="followPrinciples" checked class="mr-2"><span class="text-sm">严格遵循深度开头写作5大原则</span></label>
+                                        <label class="flex items-center"><input type="checkbox" id="fusionMode" class="mr-2"><span class="text-sm">启用双库融合模式（同时参考通用库和深度库）</span></label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg card-shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold flex items-center"><i class="fa fa-code mr-2 text-primary"></i>智能提示词</h3>
+                                <button id="generatePromptBtn" class="px-3 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">生成提示词</button>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="text-sm font-medium text-gray-700 mb-2">当前使用模型：</div>
+                                <div class="flex items-center">
+                                    <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">豆包API</span>
+                                    <button id="changeModelBtn" class="ml-2 text-sm text-primary hover:underline">API配置</button>
+                                </div>
+                            </div>
+                            
+                            <!-- API配置面板（可折叠） -->
+                            <div id="apiConfigPanel" class="hidden mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                    <i class="fa fa-key mr-2"></i>豆包API配置
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">API Key <span class="text-red-500">*</span></label>
+                                        <input type="password" id="apiKey" value="" placeholder="请输入豆包API Key（如：ark-xxxxxxxx）" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            您的API Key仅存储在本地浏览器中 | 
+                                            <a href="https://console.volcengine.com/ark/" target="_blank" class="text-primary hover:underline">获取API Key</a>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">模型接入点ID</label>
+                                        <input type="text" id="modelName" value="doubao-seed-2-0-pro-260215" placeholder="请输入豆包接入点ID" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            当前模型：Doubao-Seed-2.0-Pro | <a href="https://console.volcengine.com/ark/" target="_blank" class="text-primary hover:underline">查看控制台</a>
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-500">Temperature: <span id="tempValue">0.7</span></span>
+                                        <input type="range" id="temperature" min="0.1" max="1.0" step="0.1" value="0.7" class="w-32">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-500">Max Tokens: <span id="tokensValue">2000</span></span>
+                                        <input type="range" id="maxTokens" min="500" max="4000" step="500" value="2000" class="w-32">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="text-sm font-medium text-gray-700 mb-2">生成的提示词（可编辑）：</div>
+                                <textarea id="promptTextarea" rows="8" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-mono" placeholder="点击上方"生成提示词"按钮自动生成"></textarea>
+                            </div>
+                            
+                            <div class="flex space-x-3 mt-4">
+                                <button id="copyPromptBtn" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"><i class="fa fa-copy mr-2"></i>复制提示词</button>
+                                <button id="generateContentBtn" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center"><i class="fa fa-magic mr-2"></i>直接生成</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：生成结果和历史记录 -->
+                    <div class="xl:col-span-4 space-y-6">
+                        <div class="bg-white rounded-lg card-shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold flex items-center"><i class="fa fa-file-text-o mr-2 text-primary"></i>生成结果</h3>
+                                <span class="text-sm text-gray-500" id="resultCount">0 条结果</span>
+                            </div>
+                            <div id="resultsContainer" class="space-y-4 max-h-96 overflow-y-auto scrollbar-thin">
+                                <div class="text-center py-16 text-gray-400">
+                                    <i class="fa fa-lightbulb-o text-5xl mb-4"></i>
+                                    <p class="text-lg">选择案例并配置参数</p>
+                                    <p>点击"一键生成开头"复制提示词并打开豆包专家模式</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg card-shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold flex items-center"><i class="fa fa-history mr-2 text-primary"></i>历史生成记录</h3>
+                                <button id="clearHistoryBtn" class="text-sm text-gray-500 hover:text-danger transition-colors">清空历史</button>
+                            </div>
+                            <div id="historyContainer" class="space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
+                                <div class="text-center py-8 text-gray-400">暂无历史记录</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== 完整案例数据库（来自飞书素材库） ====================
+        const caseDatabase = {
+            // ==================== 通用开头库（6大结构 + 行业专属） ====================
+            general: {
+                "pain-point": {
+                    name: "痛点提问型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "25-45岁上班族、普通家庭；全保险赛道（尤其重疾险）",
+                    steps: ["直击痛点提问", "讲述真实案例", "放大痛点影响", "再次提问强化", "引出解决方案"],
+                    content: `你有没有算过，如果明天确诊了癌症，你的存款够撑多久？
+
+我身边一个朋友，32岁，工作六年攒了30万，去年查出了胃癌。手术、化疗、靶向药，前后花了将近80万。他自己掏了30万，父母卖了老家的房子凑了50万，才勉强把命保住。
+
+而更让人窒息的是，后续的康复、营养、复查，每个月还要固定支出1万多。他现在最怕的已经不是病痛，而是"钱花光了怎么办"。
+
+所以，我今天想问你一个很现实的问题：如果重疾真的来了，你的钱够不够用？
+
+如果你也和我朋友一样，只是一个普通的上班族，没有什么"家族资产"可以依靠，那我建议你花5分钟看完这篇。我会告诉你，如何用最低的成本，给自己搭建一个"重疾防火墙"，让你在风险来临时，至少不用为钱发愁。`
+                },
+                "cognitive-subversion": {
+                    name: "认知颠覆型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "有一定保险认知但容易被误导的用户；保险科普、保险购买指南",
+                    steps: ["提出反常识观点", "指出普遍误区", "批判错误认知", "给出正确逻辑", "引出核心内容"],
+                    content: `别再相信"保险越贵越好"了，这可能是你买保险最大的认知误区。
+
+我做了8年保险测评，看过上万份保单，发现一个惊人的规律：80%的人多花了至少30%的保费，买的却是同一份保障。
+
+为什么？因为保险销售的话术永远围绕"贵的就是好的""大公司更靠谱""附加责任越多越全面"。但实际上，重疾险的核心条款全国统一，理赔标准白纸黑字写在合同里，跟你花了多少钱、买了多少附加项，根本没有关系。
+
+今天，我要彻底打破这个"贵=好"的迷思。我会用三张图、五个真实理赔案例，告诉你保险的核心价值到底在哪里，以及如何用一半的预算，买到两倍的保障。
+
+如果你不想再当"冤大头"，这篇颠覆认知的干货，值得你收藏三遍。`
+                },
+                "story-case": {
+                    name: "场景故事型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "有父母养老压力的中年人、独生子女；医疗险、父母保险、家庭保障",
+                    steps: ["讲述真实故事", "描述关键细节", "引出核心问题", "引发用户共鸣", "过渡到解决方案"],
+                    content: `上个月，我一个大学同学突然给我打电话，声音都在发抖："我妈查出肺癌了，医生说至少要准备50万，我该怎么办？"
+
+她是个单亲妈妈，一个人带着孩子在北京打拼，存款不到10万。那天晚上，她跟我说了一句话，我这辈子都忘不了："如果当初听你的，给我妈买一份医疗险，现在是不是就不用这么绝望了。"
+
+是的，两年前我就提醒过她，给父母配上百万医疗险，一年也就一千多块钱。她当时说："我妈身体挺好的，等明年再说吧。"
+
+就这一个"等"，等来了50万的医疗费，等来了整夜的失眠，等来了四处借钱的屈辱。
+
+所以今天，我想用她的故事提醒所有还在"等等看"的朋友：风险从来不会等你准备好才来。如果你也在为父母的健康担忧，却又不知道从何下手，我把这几年帮客户配置父母保险的经验，整理成了这份"避坑指南"。至少，别让"等"变成一辈子的遗憾。`
+                },
+                "data-shock": {
+                    name: "数据冲击型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "理性决策者、数据敏感型用户；重疾险科普、医疗险科普",
+                    steps: ["抛出惊人数据", "解释数据含义", "指出问题严重性", "引发用户思考", "引出核心内容"],
+                    content: `根据国家癌症中心最新数据：中国每分钟有7.5个人确诊癌症，每天有超过1万人因癌症去世。
+
+而更残酷的数据是：一次重大疾病的平均治疗费用在30-50万之间，其中社保平均报销比例不足40%。这意味着，一个普通家庭一旦遭遇重疾，至少需要自掏腰包18-30万。
+
+这还只是治疗费用。康复期间的收入损失、营养费、护工费，又是一笔巨大的隐形开支。
+
+如果你觉得这些数字离你很遥远，不妨回答下面三个问题：
+1. 你的存款是否 ≥ 30万？
+2. 你的月收入是否 ≥ 3万？
+3. 你的父母是否有足够的养老金储备？
+
+如果以上任意一条答案是"否"，那么你和你的家庭，其实就站在"因病致贫"的悬崖边上。
+
+今天这篇文章，我不想制造焦虑，只想用最真实的数据，告诉你如何用最科学的保险配置，把这个"悬崖"变成"安全垫"。看完它，你会对"保险"这两个字，有全新的理解。`
+                },
+                "contrast-comparison": {
+                    name: "反差对比型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "已买保险但担心买错的用户、保险小白；保险条款科普、保单分析",
+                    steps: ["设置对比场景", "展示两种结果", "分析差异原因", "提出核心观点", "引出详细内容"],
+                    content: `同样是30岁，同样买了重疾险，为什么小李赔了50万，小王一分钱都没拿到？
+
+小李的保单是我帮他选的：50万保额，保终身，每年保费6000块。去年他查出甲状腺癌，手术花了5万，保险公司赔了50万。他拿着这笔钱，安心养病半年，工资一分没少。
+
+小王的保单是某"知名"代理人推荐的：20万保额，保到70岁，附加了一大堆"终身寿险""意外身故""住院津贴"，每年保费8000块。今年他查出早期胃癌，手术花了8万，保险公司拒赔。理由是他的保单里"重疾责任"只保28种疾病，胃癌不在其中。
+
+一个花了更少的钱，拿到了足够的赔偿；一个花了更多的钱，买到的却是"假保障"。
+
+今天，我就把这两份保单的条款彻底拆开，让你看清楚：买对和买错之间，差的不是运气，而是对条款的认知。如果你也不想成为下一个"小王"，这篇对比分析，请一定看完。`
+                },
+                "empathy-quote": {
+                    name: "金句共情型",
+                    library: "通用开头库",
+                    tag: "通用库",
+                    tagColor: "blue",
+                    applicable: "有家庭责任的中青年人、情绪敏感型用户；寿险、家庭责任保障、情感共鸣类内容",
+                    steps: ["抛出金句", "解释金句含义", "引发情感共鸣", "过渡到主题", "引出核心内容"],
+                    content: `"我不是怕死，我是怕我死了，家里人怎么办。"
+
+这句话，是我一个客户在确诊肺癌前一周发给我的。他今年35岁，是两个孩子的父亲，家里还有房贷车贷。他说，他最大的恐惧不是疼痛，而是"如果我倒下了，这个家就垮了"。
+
+其实，这也是大多数中年人的真实写照：我们早就不再是为自己活着，而是为父母、为伴侣、为孩子，扛着一座叫"责任"的山。
+
+保险是什么？在我眼里，它不是一纸合同，不是冷冰冰的条款，而是当你不得不离开时，能替你继续扛起那座山的"另一个你"。
+
+今天，我不想讲复杂的条款，也不想推销产品。我只想和你聊聊，如何用一份真正有用的保障，让你在风雨来临时，至少不用独自硬扛。如果你也在为家人的未来担忧，这篇充满共情的指南，或许能给你一点方向。`
+                }
+            },
+            
+            // ==================== 深度开头库（8个独立案例） ====================
+            depth: {
+                "case-1": {
+                    name: "案例1：先破后立·行业批判风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "行业从业者、专业IP打造；全赛道行业科普、乱象批判、干货输出类内容",
+                    steps: ["引入普遍共识", "展示行业乱象", "提出时代变化", "批判旧逻辑错误", "引出自己的核心观点"],
+                    content: `在很长一段时间里，所有的运营课程、短视频教父都在教你一件事："黄金三秒"。他们的逻辑是：人的注意力只有金鱼那么短，你必须在开头前三秒，用巨大的视觉冲击、听觉刺激，或者一句极其离谱的文案，强行把路过的人"拽"进来。
+
+于是我们看到了满屏的：再不努力就要被淘汰了！这件衣服穿出去回头率百分之百！到底是什么神仙搭配？一定要看到最后！千万别划走！2025年普通人翻身的最后一次机会！不看绝对后悔！
+
+这种手段有效吗？在短视频发展的早期，它是有效的。那是流量的猎奇时代，用户像是一个刚进大观园的刘姥姥，对一切新鲜刺激都感到新鲜。
+
+但现在是什么时代？是流量的防御时代。现在的用户，每天要划过几百个视频。他们的大脑已经进化出了一套极其灵敏的"垃圾内容防御机制"。
+
+当你的视频开头出现那种刻意的、高分贝的、制造悬念的"钩子"时，用户下意识的反应不再是"好奇"，而是——"又来骗我时间了"，"好吵"，"好假"，"这类营销号我看过一万个"。
+
+"黄金三秒"最大的问题，在于它把用户当成了单纯的"感官动物"，而忽略了用户是"理性且疲惫的现代人"。你越是用力过猛地想留住他，他的防御心理就越重。
+
+那么，在这个大家都很急、都很累、都很精明的时代，什么东西才能真正留住人？
+
+答案是：确定的安全感。`
+                },
+                "case-2": {
+                    name: "案例2：个人沉浸式调研+揭秘式风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "深度评测、行业揭秘、干货分享类内容",
+                    steps: ["个人行动铺垫", "调研结果预告", "提出核心概念", "通俗解释概念", "引出下文"],
+                    content: `为了写这篇内容，我最近干了一件非常自虐的事儿。我把某音、某书、某站上最近一个月最火的300条口播和知识类视频，逐帧逐句地看了一遍。
+
+看完之后，我整个人都不好了。因为我发现了一个规律。
+
+那些点赞几十万、转发过万的爆款，它们之间可能风格迥异。有的在教你搞钱，有的在教你谈恋爱，有的在教你如何优雅地回怼老板，甚至有的只是在教你如何科学地煮一包泡面。
+
+但它们都有一个共同的底层逻辑，一个隐藏在算法之下的"通关密码"。
+
+我把它叫做："句能量密度"。
+
+别被这个词吓到了，我不整那些学术名词。简单说，就是"单位时间内，你塞进了多少刺激点"。
+
+现在做爆款，是在"发高压电"。你写的话能让观众多巴胺激增，你才能火。这很残酷，但这很真实。
+
+今天，咱们聊聊，这个"句能量密度"到底是个什么玩意儿，以及咱们普通人如果不小心想做个网红，该怎么利用这个BUG。`
+                },
+                "case-3": {
+                    name: "案例3：热点共情·哲学思辨风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "热点评论、观点输出、情感类内容；全赛道深度内容、哲理观点类、人生感悟类",
+                    steps: ["抛出一句直击人心的核心观点", "引入全网热点事件，表达个人最真实的触动", "提炼反常识的人生哲学观点", "用比喻具象化抽象的人生无常", "层层递进论证，引发读者自我反思"],
+                    content: `人是随时会死的。
+
+"张雪峰真的去世了。"
+
+是吗……听到朋友的话，我脑海里最先想起的，竟然是这句许久以前，在某篇帖子里看到的话。
+
+翻了一下社媒，有的人在科普心源性猝死，有的人在探究剧烈运动的弊端。而我想到的，是命运的无常。在人均寿命不断提升的当下，我们总是忽视了自己作为人类的脆弱性。
+
+必须承认，人是随时会离去的，所有的未来都不属于我们，我们拥有的仅仅是当下这一刻。
+
+人生不是一场有明确截止时间的考试，到点就会有老师来收走卷子，而在那之前，你还可以仔细构思作文的起承转合。人生更像是在小黑屋里写小说，写着写着，突然有人冲进来，把你的稿子收走了，并告诉你，无论多么潦草，你停笔的这里就是故事的结局。
+
+积极心理学中有一个名为"到达谬误"的概念，认为幸福在某个终点处，到达这个点之前的一切都是铺垫。从小到大，我有过无数个这个节点：等长大了就好了；等考上大学就好了；等找到工作就好了……仿佛我的人生之外有一个相机镜头，对焦点一直是远方，因此我始终活在一种模糊的灰色地带，始终处于对某个节点的准备阶段。
+
+但是，那个节点永远不会到来。
+
+从节点本身的意义来看，人生根本不存在一个能够迈过就会幸福的节点，任何一个所谓的节点过去，新的挑战和烦恼就会纷至沓来。从人生的无常性来看，所有的节点都在我们虚构的未来中，但又有谁能够保证自己可以走到那个所谓的未来呢？
+
+命运是汹涌的激流，下一刻我们会沉溺在深海，还是搁浅在岸上，无人能知晓。那些你以为的过渡期，一晃一年三年十年，可能就是人生的全部。`
+                },
+                "case-4": {
+                    name: "案例4：冷静提问·自我暴露风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "个人分享、观点输出、反思类内容；有家庭责任感的成年人；全赛道深度内容、家庭保障类、情感哲理类长文",
+                    steps: ["用一个直击灵魂的二选一问题开头", "坦诚分享自己过去的错误认知", "用一个个人真实经历作为认知转折点", "推翻之前的认知，提出新的核心观点", "升华到普遍人性，给出最终结论"],
+                    content: `我问你一个问题。
+
+你觉得，人活着，是为了自己，还是为了别人？
+
+我以前一直觉得，是为了自己。
+
+我努力工作，拼命赚钱，就是为了能买自己喜欢的东西，去自己想去的地方，过自己想要的生活。我觉得那些为了孩子、为了父母而活的人，都活得太累了。
+
+直到去年，我爸住院了。
+
+急性心梗，手术费要20万。我看着缴费单，突然发现，我所有的积蓄加起来，还差5万。
+
+那是我第一次意识到，原来我不是一个人在活着。
+
+我是我父母的儿子，是我妻子的丈夫，是我孩子的父亲。我的命，从来都不是我一个人的。
+
+很多人说，人要为自己而活。
+
+错了。
+
+人从来都不是只为自己而活的。
+
+你是别人的希望，是别人的依靠，是别人活下去的理由。
+
+你可以不在乎自己，但你不能不在乎那些在乎你的人。
+
+人活着，确实是为了自己。
+
+但真正的成熟，是你终于明白，你也需要为别人而活。`
+                },
+                "case-5": {
+                    name: "案例5：调研揭秘·方法论拆解风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "内容创作方法论、自媒体运营类；可适配保险内容创作的选题思路深度长文",
+                    steps: ["数字锚点建钩", "澄清公众误解", "拆解具体调研行动", "引用核心原话", "指出观点错误 + 原因"],
+                    content: `有一个数字我一直记得。
+
+咪蒙巅峰时期，单条广告报价80万。不是一个月80万，是一篇文章80万。
+
+她的公众号估值超过20亿，靠的不是什么资本运作，就是文字。写女性、写职场、写成长、写那些让人看完想转发的故事。
+
+很多人觉得她只是会煽情，是情绪操控大师。
+
+但我最近帮几个客户做内容时，反复研究咪蒙的方法论，发现她真正厉害的地方不是文笔，是选题。
+
+咪蒙团队每天做一件事：头脑风暴50个爆款选题。50个。然后一整天讨论，最终只聚焦1个。
+
+这1个选题不是定下来就写了，还要改十几个版本，换不同视角反复讨论，甚至先发到小平台测试用户反应，看数据，再决定要不要正式推。光是在「找到那个选题」这件事上，就要消耗一整天。
+
+咪蒙自己说过：选题占内容成功的60%到70%。
+
+剩下那30%才是写作本身。
+
+很多人把这个比例搞反了。以为把文章写得好就行了，结果写得再用心，发出去也没人看。
+
+因为选题没选对——不是对的话题、不是对的角度、不是对的时机。`
+                },
+                "case-6": {
+                    name: "案例6：自我解剖·悖论揭示风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "IP打造方法论、高认知人群破圈、个人品牌底层逻辑；可适配保险从业者如何做个人IP的深度长文",
+                    steps: ["原有认知建锚", "调研行动铺垫（接触大量真实案例）", "悖论揭示", "反差对比", "设问引出下文 + 自我定位"],
+                    content: `我曾经以为，认知高的人，一旦开始做IP，就一定能脱颖而出。
+
+后来，我接触了100多位咨询师、教练、创作者、战略专家、自由职业者，还有一些创业10年以上的创始人。
+
+我发现了一个惊人的悖论：越是有能力、有知识、有深度的人，越容易卡在IP这件事上。
+
+那些写过几十万字的专家，做过千万营收的操盘手，人生经历精彩到可以出书……却总是讲不清楚自己是谁、能为谁解决什么问题、为什么值得信任。
+
+而反过来，那些"没那么聪明"的人，倒是在短时间内把IP做得风生水起，轻松变现、持续输出，甚至建立起个人品牌帝国。
+
+这是为什么？
+
+今天，我想从一个"高认知个体"的身份出发，讲讲这个现象背后的本质。也是我过去几年不断撞墙、转弯、再出发之后，才慢慢悟到的路径。`
+                },
+                "case-7": {
+                    name: "案例7：反常识顿悟·势能揭示风格",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "内容创作方法论、个人IP打造、商业认知升级；可适配保险从业者「如何正确学习同行」的深度长文",
+                    steps: ["共识引入（普遍流传的正确废话）", "具体行动描写（细节真实有画面感）", "结果对比（数据落差制造冲击）", "自我怀疑（替读者说出内心独白）", "反常识揭示（错在「没错」）", "核心比喻（悬崖跳水具象化势能）", "引出下文"],
+                    content: `我们在做内容、做产品、甚至做商业模式的时候，听到最多的一句"正确废话"就是：先抄再超，像素级复刻。
+
+于是你照做了。
+
+看到大V拍了一个"沉浸式回家"，你也拍，甚至连他进门脱鞋时叹的那口气都学得惟妙惟肖；
+
+看到同行写了一篇"如何在30岁前存下100万"爆了，你也写，结构一样，金句照搬，连排版色调都调成了同一个色号。
+
+结果呢？
+
+人家那是单篇点赞10万+的爆款，你发出去，浏览量300，其中20个还是你自己浏览的。
+
+你陷入了深深的自我怀疑：是不是我运气不好？是不是平台限流？是不是我长得不够讨喜？
+
+我要告诉你一个事实：你抄袭了所有肉眼可见的"形式"，却唯独忽略了肉眼不可见的"势能"。
+
+这就像两个人从悬崖跳水。菲尔普斯跳下去，那是优美的体育竞技；很多人跳下去，那叫投河自尽。动作一样，结果不同，因为你们身处的"位势"和具备的"动能"完全不同。
+
+今天这篇文章，我想把"势能"这个玄学的词，拆解得明明白白，让你知道下一次如果要"抄"，到底该抄什么。`
+                },
+                "case-8": {
+                    name: "案例8：内行黑话·规则拆解型",
+                    library: "深度开头库",
+                    tag: "深度库",
+                    tagColor: "purple",
+                    applicable: "行业专业内容、技能教学、干货拆解；全赛道自媒体、保险、理财、职场、商业类内容，尤其适合专业IP打造、行业科普内容",
+                    steps: ["抛出行业内行才知道的黑话/潜规则", "告诉用户这个黑话决定了事情的成败", "拆解黑话背后的底层逻辑", "点出普通用户不知道的核心信息差", "引出下文的完整拆解"],
+                    content: `做短视频的人，都知道一个不能说的黑话，叫「3秒完播密码」。
+
+90%的人做短视频，播放量卡在几百、几千，涨粉比蜗牛还慢，核心原因，就是没搞懂这个「3秒完播密码」。
+
+你可能会说，3秒完播，不就是黄金三秒吗？不就是开头搞个大嗓门、说句离谱的话？
+
+错了。
+
+真正的「3秒完播密码」，根本不是靠噱头，而是靠一套可复制的开头逻辑。
+
+那些百万粉丝的博主，从来不会告诉你，他们的爆款开头，全都是靠这套逻辑做出来的。
+
+今天这篇文章，我就把这个内行才知道的「3秒完播密码」，彻底拆解给你看。不用你有颜值，不用你会搞噱头，哪怕你是新手，也能直接套用，做出能爆的开头。`
+                }
+            },
+            
+            // ==================== 团队内部库（4个案例） ====================
+            team: {
+                "team-1": {
+                    name: "内部开头-001：长文情绪共情型（穷人视角）",
+                    library: "团队内部库",
+                    tag: "团队库",
+                    tagColor: "green",
+                    applicable: "低收入群体、普通打工人、担心家庭医疗负担的年轻人；保险科普、保险购买指南",
+                    steps: ["穷人视角定位", "家庭创伤背景", "现实困境描述", "解决方案引出", "保姆级承诺"],
+                    content: `对于穷人来说，买保险=买条命，不夸张。
+
+因为我的爷爷和外公，都是癌症去世的，所以我总是担心自己和家人生病。
+
+我的家庭非常普通，父母是农民，几乎没有积蓄，自己也只是一个普通的打工人，拿着几千块钱的月薪，我有时候在想，假如父母生病了，要很多钱，我能做到负债几十上百万，给他们医治吗？我对自己没有信心。
+
+所以，我非常执着地要买保险，研究了大半年，请教了我在保险公司上班的朋友（毕竟保险的暗坑还是很多，可千万不能买错），做出了一份保姆级的攻略。
+
+我希望你可以看完，一个真正站在穷人的视角，把每一笔买保险的钱，都花在刀刃上。`
+                },
+                "team-2": {
+                    name: "内部开头-002：热点事件+身边人踩坑型",
+                    library: "团队内部库",
+                    tag: "团队库",
+                    tagColor: "green",
+                    applicable: "0-6岁孩子的新手父母；少儿保险热点营销、新手父母教育",
+                    steps: ["热点事件切入", "朋友踩坑描述", "行业问题揭示", "自身优势说明", "内容价值承诺"],
+                    content: `上周幼儿园体检，发现班里有两个孩子确诊了先天性心脏病。
+
+闺蜜连夜拉着我研究宝宝保险，却被某中介推荐了年缴8000的"全能套餐"——终身寿险做主险，附加终身重疾，附加定期寿险，附加长期意外身故，附加保费豁免，附加住院医疗，附加住院津贴，附加意外医疗。
+
+看上去保得很"全"，实际上是真的"坑"。
+
+我们这些新手父母哪懂什么保额、附加条款。好在孩子爸在金融行业摸爬滚打十年，通宵整理了这份避坑指南。如果你也在为宝宝选保险，请务必看完这篇真正站在家长立场的干货。`
+                },
+                "team-3": {
+                    name: "内部开头-003：反常识金句+保单拆解型",
+                    library: "团队内部库",
+                    tag: "团队库",
+                    tagColor: "green",
+                    applicable: "月薪5000-20000的普通家庭；成人重疾险科普、保费优化指南",
+                    steps: ["反常识金句抛出", "具体案例支撑", "行业问题揭示", "核心观点输出", "行动引导"],
+                    content: `大部分普通家庭，买保险就是在给保险公司送钱！
+
+前两天帮人分析保单，发现花了八九千块钱只买了20万保额，核心责任就跟花3000买的差不多，钱全花在了一堆没用的责任上，真生了病根本赔不了！
+
+由于工作的原因，我每天都会测评大量的产品，以及为客户分析已经买过的保单，但我发现：买对和买错往往就只差一两个字！
+
+咱们普通家庭买保险，图的就是个安心，万一出事了能有个兜底的。
+
+正因为如此，我今天想跟大家扒开保险条款里的真相：让你花的每一分钱，都能在关键时刻能赔到、赔得快、赔得多！`
+                },
+                "team-4": {
+                    name: "内部开头-004：行业内部人自白型",
+                    library: "团队内部库",
+                    tag: "团队库",
+                    tagColor: "green",
+                    applicable: "所有有保险需求的人群；全保险赛道，尤其适合建立行业信任、打破销售偏见",
+                    steps: ["行业内幕揭示", "自我立场声明", "动机澄清", "内容价值预告", "信任建立"],
+                    content: `在保险行业这些年，我见过太多为了冲业绩而走偏的操作了。今天我想卸下"销售"的面具，跟大家说说那些没人愿意明说的行业大实话。
+
+说实话，现在我基本不会主动去推重疾险了。
+
+在保险圈摸爬滚打这些年，那些为了业绩变形的操作我见得太多了。如今的我，更想做坐在大家身边的保险顾问，而非站在大家对面的推销员。
+
+当我不用靠着一张重疾保单的佣金养家糊口时，才真正能心平气和、完完全全站在客户的角度，聊聊重疾险这个险种的真实情况。不为签单忽悠人，也不为佣金藏猫腻。
+
+今天，我就把行业里大家心照不宣，却很少跟客户讲透彻的大实话，一次性说到位。
+
+不管你最后找谁买保险，我都希望你能摸透这些门道，少踩些坑。`
+                }
+            },
+            
+            // ==================== 行业专属库 ====================
+            industry: {
+                "insurance": {
+                    name: "保险行业专属开头",
+                    library: "行业专属库",
+                    tag: "行业库",
+                    tagColor: "orange",
+                    applicable: "保险行业所有内容",
+                    steps: ["保险场景切入", "用户痛点描述", "行业现状分析", "专业观点输出", "引出产品/服务"],
+                    content: `买保险最怕的是什么？
+
+不是保费贵，而是理赔难。
+
+很多人买保险的时候，代理人说得天花乱坠，什么都能赔。结果真的出事了，却被保险公司以各种理由拒赔。
+
+今天我就来告诉你，保险公司拒赔的常见理由，以及如何避免理赔纠纷。`
+                },
+                "self-deprecating": {
+                    name: "自嘲破冰·低姿态型",
+                    library: "行业专属库",
+                    tag: "行业库",
+                    tagColor: "orange",
+                    applicable: "新手向内容、平民化干货、普通人视角内容；全赛道理财、保险、职场、成长、技能教学类内容",
+                    steps: ["开门见山自嘲放低姿态", "主动撕掉专家/权威标签", "坦诚自己的普通身份和踩坑经历", "告诉用户自己能提供的真实价值", "自然引出下文内容"],
+                    content: `我先声明，我不是什么理财大师，也不是什么年入千万的投资大佬，更不会教你什么一夜暴富的方法。我就是一个普通的上班族，跟你一样，每天朝九晚五上班，背着房贷车贷，要养孩子、养父母，手里的每一分钱，都是辛辛苦苦赚来的血汗钱。
+
+过去10年，我踩过理财的坑，亏过钱，也被人割过韭菜，从一开始手里只有几千块积蓄，到现在慢慢攒下了一笔稳定的被动收入，踩过的坑没有100个也有80个。
+
+今天我写这篇内容，不是想教你怎么赚大钱，只是想把我踩过的坑、总结出来的普通人也能用的理财方法，分享给你。至少能让你跟我一样，不用再为了钱焦虑，不用再踩那些没必要的坑，让手里的血汗钱，能稳稳地帮你生钱。
+
+如果你也是一个普通的上班族，也想靠理财给自己多一份底气，那这篇纯干货，你一定不能错过。`
+                },
+                "result-reversal": {
+                    name: "结果倒推·溯源型",
+                    library: "行业专属库",
+                    tag: "行业库",
+                    tagColor: "orange",
+                    applicable: "路径教学类内容、避坑指南、新手教程；全赛道保险、理财、职场、自媒体、技能教学类内容",
+                    steps: ["抛出用户最想要的终极结果", "告诉用户90%的人都搞反了顺序", "拆解普通人的错误做法", "抛出正确的核心第一步", "引出下文的完整步骤拆解"],
+                    content: `如果你想靠买保险守住家庭的风险，那你一定要记住：买保险的第一步，根本不是看产品，也不是比价格。90%的人买保险，都搞反了顺序。
+
+一上来就先看哪个产品火，哪个产品便宜，哪个返利多，拿着一堆产品对比来对比去，最后花了几万块，买了一堆自己根本用不上的保障，真到出事的时候，才发现根本不赔。
+
+真正懂行的人都知道，买保险的核心，从来不是选产品，而是先搞清楚自己的需求。你要先知道，你买保险，到底是想解决什么问题，想守住什么风险，再去选对应的产品。顺序对了，你才能花最少的钱，买到最能护住你的保障；顺序错了，你花再多钱，也都是白搭。
+
+今天这篇文章，我就把买保险的正确顺序，从头到尾给你讲清楚，哪怕你是保险小白，也能一步到位，买对保险不踩坑。`
+                }
+            }
+        };
+
+
+        // 当前状态变量
+        let currentLibrary = 'general';
+        let currentCase = 'pain-point';
+        let currentTrack = 'insurance';
+        let history = JSON.parse(localStorage.getItem('openingHistory') || '[]');
+
+        // ==================== 交互逻辑+功能实现 ====================
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化案例列表和预览
+            renderCaseList();
+            renderCasePreview();
+            generatePrompt();
+            renderHistory();
+            
+            // 素材库标签切换（顶部标签页）
+            document.querySelectorAll('.library-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const library = this.getAttribute('data-library');
+                    console.log('顶部标签页点击:', library);
+                    switchLibrary(library);
+                });
+            });
+            
+            // 左侧边栏素材库分类按钮点击 - 使用事件委托
+            const sidebarLibraryList = document.getElementById('sidebarLibraryList');
+            if (sidebarLibraryList) {
+                sidebarLibraryList.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.sidebar-library-link');
+                    if (btn) {
+                        const library = btn.getAttribute('data-library');
+                        console.log('左侧边栏点击:', library);
+                        switchLibrary(library);
+                    }
+                });
+            }
+            
+            // 切换素材库函数
+            function switchLibrary(library) {
+                console.log('switchLibrary 被调用:', library);
+                
+                // 验证库是否存在
+                if (!caseDatabase[library]) {
+                    console.error('库不存在:', library);
+                    showToast('素材库加载失败: ' + library);
+                    return;
+                }
+                
+                // 更新顶部标签页样式
+                document.querySelectorAll('.library-tab').forEach(t => {
+                    t.classList.remove('tab-active');
+                    t.classList.add('text-gray-500');
+                });
+                const activeTab = document.querySelector(`.library-tab[data-library="${library}"]`);
+                if (activeTab) {
+                    activeTab.classList.add('tab-active');
+                    activeTab.classList.remove('text-gray-500');
+                }
+                
+                // 更新左侧边栏样式
+                document.querySelectorAll('.sidebar-library-link').forEach(l => {
+                    l.classList.remove('bg-sidebarHover');
+                });
+                const activeLink = document.querySelector(`.sidebar-library-link[data-library="${library}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('bg-sidebarHover');
+                }
+                
+                currentLibrary = library;
+                const firstCaseId = Object.keys(caseDatabase[currentLibrary])[0];
+                currentCase = firstCaseId;
+                
+                console.log('切换到库:', library, '第一个案例:', firstCaseId);
+                
+                renderCaseList();
+                renderCasePreview();
+                generatePrompt();
+                
+                showToast('已切换到: ' + getLibraryName(library));
+            }
+            
+            // 获取库名称
+            function getLibraryName(library) {
+                const names = {
+                    'general': '通用开头库',
+                    'depth': '深度开头库',
+                    'team': '团队内部库',
+                    'industry': '行业专属库'
+                };
+                return names[library] || library;
+            }
+            
+            // 赛道按钮切换
+            document.querySelectorAll('.track-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.track-btn').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-white');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    this.classList.add('bg-primary', 'text-white');
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                    
+                    currentTrack = this.getAttribute('data-track');
+                    document.getElementById('customTrack').value = '';
+                    generatePrompt();
+                });
+            });
+            
+            // 自定义赛道输入
+            document.getElementById('customTrack').addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    document.querySelectorAll('.track-btn').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-white');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    currentTrack = this.value.trim();
+                    generatePrompt();
+                }
+            });
+            
+            // 实时更新提示词
+            document.getElementById('topic').addEventListener('input', generatePrompt);
+            
+            // 字数选择变化处理
+            document.getElementById('wordCountSelect').addEventListener('change', handleWordCountSelectChange);
+            
+            // 自定义字数输入变化
+            document.getElementById('wordCountCustom').addEventListener('input', function() {
+                const customValue = this.value;
+                if (customValue && customValue > 0) {
+                    document.getElementById('wordCount').value = customValue;
+                    generatePrompt();
+                }
+            });
+            document.getElementById('count').addEventListener('change', generatePrompt);
+            document.getElementById('wordCount').addEventListener('change', generatePrompt);
+            document.getElementById('specialRequirements').addEventListener('input', generatePrompt);
+            document.getElementById('followPrinciples').addEventListener('change', generatePrompt);
+            document.getElementById('fusionMode').addEventListener('change', generatePrompt);
+            
+            // 生成提示词按钮
+            document.getElementById('generatePromptBtn').addEventListener('click', generatePrompt);
+            
+            // 复制提示词按钮
+            document.getElementById('copyPromptBtn').addEventListener('click', function() {
+                const prompt = document.getElementById('promptTextarea').value;
+                navigator.clipboard.writeText(prompt).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-check mr-2"></i>已复制';
+                    setTimeout(() => { this.innerHTML = originalText; }, 2000);
+                });
+            });
+            
+            // 一键生成开头按钮
+            document.getElementById('generateContentBtn').addEventListener('click', generateContent);
+            
+            // API配置面板切换
+            document.getElementById('changeModelBtn').addEventListener('click', function() {
+                const panel = document.getElementById('apiConfigPanel');
+                panel.classList.toggle('hidden');
+            });
+            
+            // 温度滑块
+            document.getElementById('temperature').addEventListener('input', function() {
+                document.getElementById('tempValue').textContent = this.value;
+            });
+            
+            // Max Tokens滑块
+            document.getElementById('maxTokens').addEventListener('input', function() {
+                document.getElementById('tokensValue').textContent = this.value;
+            });
+            
+            // 同步素材库按钮
+            document.getElementById('syncBtn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>同步中...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fa fa-check mr-2"></i>同步成功';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }, 1500);
+                }, 2000);
+            });
+            
+            // 清空历史记录按钮
+            document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+                if (confirm('确定要清空所有历史记录吗？此操作不可恢复。')) {
+                    history = [];
+                    localStorage.setItem('openingHistory', JSON.stringify(history));
+                    renderHistory();
+                }
+            });
+        });
+
+        // 渲染案例列表
+        function renderCaseList() {
+            const caseList = document.getElementById('caseList');
+            caseList.innerHTML = '';
+            
+            const cases = caseDatabase[currentLibrary];
+            for (const [caseId, caseInfo] of Object.entries(cases)) {
+                const caseItem = document.createElement('div');
+                caseItem.className = `case-item p-3 border border-gray-200 rounded-lg hover:border-gray-300 cursor-pointer ${caseId === currentCase ? 'border-primary bg-primary/5' : ''}`;
+                caseItem.setAttribute('data-case', caseId);
+                
+                caseItem.innerHTML = `
+                    <div class="font-medium ${caseId === currentCase ? 'text-primary' : ''}">${caseInfo.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${caseInfo.applicable.substring(0, 40)}...</div>
+                `;
+                
+                caseItem.addEventListener('click', function() {
+                    document.querySelectorAll('.case-item').forEach(item => {
+                        item.classList.remove('border-primary', 'bg-primary/5');
+                        item.querySelector('.font-medium').classList.remove('text-primary');
+                    });
+                    this.classList.add('border-primary', 'bg-primary/5');
+                    this.querySelector('.font-medium').classList.add('text-primary');
+                    
+                    currentCase = this.getAttribute('data-case');
+                    renderCasePreview();
+                    generatePrompt();
+                });
+                
+                caseList.appendChild(caseItem);
+            }
+        }
+
+        // 渲染案例预览
+        function renderCasePreview() {
+            const caseInfo = caseDatabase[currentLibrary][currentCase];
+            const previewContainer = document.getElementById('casePreview');
+            
+            previewContainer.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium text-primary">${caseInfo.name}</h4>
+                        <span class="text-xs bg-${caseInfo.tagColor}-100 text-${caseInfo.tagColor}-700 px-2 py-1 rounded">${caseInfo.tag}</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="text-sm font-medium text-gray-700 mb-2">适用场景：</div>
+                        <div class="text-sm text-gray-600">${caseInfo.applicable}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="text-sm font-medium text-gray-700 mb-2">结构步骤：</div>
+                        <ol class="text-sm text-gray-600 list-decimal list-inside space-y-1">
+                            ${caseInfo.steps.map(step => `<li>${step}</li>`).join('\n')}
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="text-sm font-medium text-gray-700 mb-2">完整原文：</div>
+                        <div class="bg-gray-50 rounded-lg p-4 text-sm space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
+                            ${caseInfo.content.split('\n\n').map(p => `<p>${p}</p>`).join('\n')}
+                        </div>
+                    </div>
+                    
+                    <button id="copyCaseBtn" class="w-full px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center">
+                        <i class="fa fa-copy mr-2"></i>复制完整案例
+                    </button>
+                </div>
+            `;
+            
+            // 绑定复制案例按钮
+            document.getElementById('copyCaseBtn').addEventListener('click', function() {
+                navigator.clipboard.writeText(caseInfo.content).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-check mr-2"></i>已复制';
+                    setTimeout(() => { this.innerHTML = originalText; }, 2000);
+                });
+            });
+        }
+
+        // 生成智能提示词（核心功能）
+        function generatePrompt() {
+            const caseInfo = caseDatabase[currentLibrary][currentCase];
+            const topic = document.getElementById('topic').value || '重疾险怎么买不被坑';
+            const count = document.getElementById('count').value;
+            const wordCount = document.getElementById('wordCount').value;
+            const specialRequirements = document.getElementById('specialRequirements').value;
+            const followPrinciples = document.getElementById('followPrinciples').checked;
+            const fusionMode = document.getElementById('fusionMode').checked;
+            
+            // 赛道名称映射
+            const trackNames = {
+                'insurance': '成人保险',
+                'finance': '金融理财',
+                'health': '健康医疗',
+                'education': '教育学习'
+            };
+            let trackName = trackNames[currentTrack] || currentTrack;
+            
+            let prompt = `你是一位资深的${trackName}内容创作者，擅长写能引发用户共鸣的优质开头。
+
+请使用【${caseInfo.name}】开头结构，为"${trackName}"赛道创作${count}个关于"${topic}"的开头。
+
+【${caseInfo.name}结构说明】：
+${caseInfo.steps.map((step, index) => `${index + 1}. ${step}`).join('\n')}
+
+【参考案例】：
+${caseInfo.content}
+
+要求：
+1. 严格遵循上述${caseInfo.steps.length}步结构
+2. 每个开头目标字数约${wordCount}字
+3. 语气平静克制，不要说教，不要喊口号
+4. 站在用户角度思考，共情不恐吓
+5. 有个人观点和独立思考，不能只是复述别人的话
+6. 段落之间自然过渡，不要生硬跳转`;
+
+            if (followPrinciples) {
+                prompt += `
+7. 严格遵循深度开头写作5大原则：先思考后写作、语气平静克制、有个人观点、共情不恐吓、自然过渡`;
+            }
+
+            if (fusionMode) {
+                prompt += `
+8. 同时融合通用开头库和深度开头库的优点，生成更优质的内容`;
+            }
+
+            if (specialRequirements) {
+                prompt += `
+
+【特殊要求】：
+${specialRequirements}`;
+            }
+
+            document.getElementById('promptTextarea').value = prompt;
+        }
+
+        // 生成内容（直接调用豆包API）
+        async function generateContent() {
+            const prompt = document.getElementById('promptTextarea').value;
+            const count = parseInt(document.getElementById('count').value);
+            const topic = document.getElementById('topic').value || '重疾险怎么买不被坑';
+            const caseInfo = caseDatabase[currentLibrary][currentCase];
+            const trackNames = {
+                'insurance': '成人保险',
+                'finance': '金融理财',
+                'health': '健康医疗',
+                'education': '教育学习'
+            };
+            let trackName = trackNames[currentTrack] || currentTrack;
+            
+            // 获取API配置
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const modelName = document.getElementById('modelName').value;
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            
+            if (!prompt) {
+                showError('请先生成提示词');
+                return;
+            }
+            
+            if (!apiKey) {
+                showError('请先配置API Key（点击"API配置"按钮）');
+                document.getElementById('apiConfigPanel').classList.remove('hidden');
+                return;
+            }
+            
+            // 显示加载状态
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="text-center py-16 text-gray-400">
+                    <i class="fa fa-spinner fa-spin text-5xl mb-4 text-primary"></i>
+                    <p class="text-lg font-medium">正在调用豆包API...</p>
+                    <p class="text-sm mt-2">模型: ${modelName} | Temperature: ${temperature}</p>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <i class="fa fa-info-circle mr-1"></i>
+                        首次调用可能需要等待模型预热
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resultCount').textContent = '生成中...';
+            
+            try {
+                // 调用豆包API
+                const response = await callDoubaoAPI(prompt, apiKey, modelName, temperature, maxTokens);
+                
+                if (response.success) {
+                    // 处理生成成功
+                    handleGenerationSuccess(response.content, count, caseInfo, trackName, topic, prompt);
+                } else {
+                    throw new Error(response.error || 'API调用失败');
+                }
+                
+            } catch (error) {
+                console.error('生成失败:', error);
+                
+                // 显示友好的错误提示
+                let errorMessage = error.message || '未知错误';
+                let errorDetail = '';
+                
+                if (errorMessage.includes('CORS')) {
+                    errorDetail = '浏览器安全策略限制。请使用以下方案之一：<br>1. 安装浏览器插件允许跨域<br>2. 使用本地服务器运行此页面<br>3. 暂时使用"复制提示词"功能';
+                } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+                    errorDetail = 'API Key无效或已过期，请检查配置';
+                } else if (errorMessage.includes('429')) {
+                    errorDetail = '请求过于频繁，请稍后再试';
+                } else if (errorMessage.includes('500')) {
+                    errorDetail = '服务器内部错误，请稍后再试';
+                }
+                
+                // 处理错误消息，将换行符转换为HTML
+                const formattedError = errorMessage.replace(/\n/g, '<br>');
+                
+                resultsContainer.innerHTML = `
+                    <div class="py-6 px-4">
+                        <div class="flex items-start gap-3 mb-4">
+                            <i class="fa fa-exclamation-triangle text-2xl text-danger mt-1"></i>
+                            <div class="flex-1">
+                                <p class="text-lg font-medium mb-2">生成失败</p>
+                                <div class="text-sm text-gray-600 mb-3 bg-red-50 p-3 rounded-lg border border-red-100" style="white-space: pre-wrap;">${formattedError}</div>
+                                ${errorDetail ? `<div class="text-xs text-gray-500 mb-4 bg-yellow-50 p-3 rounded-lg border border-yellow-100">${errorDetail}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-3">
+                            <button onclick="generateContent()" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">
+                                <i class="fa fa-refresh mr-2"></i>重试
+                            </button>
+                            <button onclick="document.getElementById('copyPromptBtn').click(); showToast('提示词已复制，请手动粘贴到豆包使用')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                                <i class="fa fa-copy mr-2"></i>复制提示词备用
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resultCount').textContent = '生成失败';
+            }
+        }
+        
+        // 调用豆包API（支持本地和Vercel部署两种模式）
+        async function callDoubaoAPI(prompt, apiKey, model, temperature, maxTokens) {
+            // 检测当前运行环境
+            const isLocalDev = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1';
+            
+            // 本地开发模式：直接调用豆包API
+            // Vercel部署模式：调用本地代理函数
+            const API_URL = isLocalDev 
+                ? 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'
+                : '/api/callDoubao';
+            
+            const requestBody = {
+                apiKey: apiKey,
+                model: model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: '你是一位资深的内容创作专家，擅长根据给定的结构和要求创作优质的开头内容。请严格按照用户的要求生成内容，保持语气平静克制，有个人观点，共情不恐吓。'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: parseFloat(temperature),
+                maxTokens: parseInt(maxTokens)
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    const errorMsg = data.error || data.details || response.statusText;
+                    
+                    // 针对常见错误提供更友好的提示
+                    if (response.status === 404) {
+                        throw new Error(`模型不存在或无法访问。请检查：\n1. 模型接入点ID是否正确（在豆包方舟控制台查看）\n2. API Key是否有权限访问该模型\n3. 模型是否已开通并在线\n\n原始错误：${errorMsg}`);
+                    } else if (response.status === 401) {
+                        throw new Error(`API Key无效或已过期。请检查您的API Key是否正确。\n\n原始错误：${errorMsg}`);
+                    } else if (response.status === 429) {
+                        throw new Error(`请求过于频繁，请稍后再试。\n\n原始错误：${errorMsg}`);
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${errorMsg}`);
+                    }
+                }
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    return {
+                        success: true,
+                        content: data.choices[0].message.content
+                    };
+                } else {
+                    throw new Error('API返回格式异常: ' + JSON.stringify(data));
+                }
+                
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        // 显示Toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+            toast.innerHTML = `<i class="fa fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // 处理生成成功
+        function handleGenerationSuccess(content, count, caseInfo, trackName, topic, prompt) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            document.getElementById('resultCount').textContent = `${count} 条结果`;
+            
+            const generatedResults = content.split('\n\n---\n\n').map(r => r.trim()).filter(r => r);
+            const finalResults = generatedResults.length > 0 ? generatedResults : [content];
+            
+            finalResults.forEach((result, index) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'border border-gray-200 rounded-lg p-4 card-hover';
+                
+                resultCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-sm font-medium text-primary">生成结果 ${index+1}</span>
+                            <span class="text-xs text-gray-400 ml-2">${caseInfo.name}</span>
+                        </div>
+                        <button class="copy-result text-sm text-gray-500 hover:text-primary transition-colors" data-content="${encodeURIComponent(result)}">
+                            <i class="fa fa-copy mr-1"></i>复制
+                        </button>
+                    </div>
+                    <div class="text-sm space-y-3">
+                        ${result.split('\n\n').map(p => `<p>${p}</p>`).join('\n')}
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(resultCard);
+            });
+            
+            // 绑定复制按钮
+            document.querySelectorAll('.copy-result').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const content = decodeURIComponent(this.getAttribute('data-content'));
+                    navigator.clipboard.writeText(content).then(() => {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fa fa-check mr-1"></i>已复制';
+                        setTimeout(() => { this.innerHTML = originalText; }, 2000);
+                    });
+                });
+            });
+            
+            // 保存到历史记录
+            const historyItem = {
+                id: Date.now(),
+                time: new Date().toLocaleString(),
+                caseName: caseInfo.name,
+                track: trackName,
+                topic: topic,
+                results: finalResults,
+                prompt: prompt
+            };
+            
+            history.unshift(historyItem);
+            if (history.length > 20) history = history.slice(0, 20);
+            localStorage.setItem('openingHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            
+            if (history.length === 0) {
+                historyContainer.innerHTML = '<div class="text-center py-8 text-gray-400">暂无历史记录</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach((item, index) => {
+                const time = new Date(item.time);
+                const timeStr = `${time.getMonth()+1}月${time.getDate()}日 ${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`;
+                
+                html += `
+                    <div class="history-item p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors" data-idx="${index}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 cursor-pointer history-content" onclick="loadHistoryResultByIndex(${index})">
+                                <div class="font-medium text-sm">${item.caseName} · ${item.track}</div>
+                                <div class="text-xs text-gray-500 mt-1">主题：${item.topic}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="text-xs text-gray-400">${timeStr}</div>
+                                <span class="delete-history-btn cursor-pointer px-2 py-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" 
+                                      title="删除此条记录" 
+                                      onclick="event.stopPropagation(); deleteHistoryItem(${index}); return false;">
+                                    <i class="fa fa-trash-o"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyContainer.innerHTML = html;
+        }
+        
+        // 通过索引加载历史结果
+        function loadHistoryResultByIndex(index) {
+            if (index >= 0 && index < history.length) {
+                loadHistoryResult(history[index]);
+            }
+        }
+        
+        // 加载历史结果
+        function loadHistoryResult(item) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            document.getElementById('resultCount').textContent = `${item.results.length} 条结果`;
+            
+            item.results.forEach((content, index) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'border border-gray-200 rounded-lg p-4 card-hover';
+                
+                resultCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-sm font-medium text-primary">历史结果 ${index+1}</span>
+                            <span class="text-xs text-gray-400 ml-2">${item.caseName}</span>
+                        </div>
+                        <button class="copy-result text-sm text-gray-500 hover:text-primary transition-colors" data-content="${encodeURIComponent(content)}">
+                            <i class="fa fa-copy mr-1"></i>复制
+                        </button>
+                    </div>
+                    <div class="text-sm space-y-3">
+                        ${content.split('\n\n').map(p => `<p>${p}</p>`).join('\n')}
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(resultCard);
+            });
+            
+            // 绑定复制按钮
+            document.querySelectorAll('.copy-result').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const content = decodeURIComponent(this.getAttribute('data-content'));
+                    navigator.clipboard.writeText(content).then(() => {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fa fa-check mr-1"></i>已复制';
+                        setTimeout(() => { this.innerHTML = originalText; }, 2000);
+                    });
+                });
+            });
+            
+            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 删除单条历史记录
+        function deleteHistoryItem(index) {
+            console.log('deleteHistoryItem 被调用, index:', index, 'history长度:', history.length);
+            
+            if (isNaN(index) || index < 0 || index >= history.length) {
+                console.error('无效的索引:', index);
+                showToast('删除失败：无效的索引');
+                return;
+            }
+            
+            const item = history[index];
+            const caseName = item ? item.caseName : '';
+            const topic = item ? item.topic : '';
+            
+            if (confirm(`确定删除这条历史记录吗？\n\n${caseName} · ${topic}`)) {
+                console.log('确认删除, 删除前history长度:', history.length);
+                history.splice(index, 1);
+                console.log('删除后history长度:', history.length);
+                localStorage.setItem('openingHistory', JSON.stringify(history));
+                renderHistory();
+                showToast('已删除该条历史记录');
+            } else {
+                console.log('用户取消删除');
+            }
+        }
+
+        // ==================== 工具函数 ====================
+        
+        // 字数选择变化处理
+        function handleWordCountSelectChange() {
+            const select = document.getElementById('wordCountSelect');
+            const customInput = document.getElementById('wordCountCustom');
+            const hiddenInput = document.getElementById('wordCount');
+            
+            if (select.value === 'custom') {
+                // 显示自定义输入框
+                customInput.classList.remove('hidden');
+                customInput.focus();
+                // 清空隐藏输入框
+                hiddenInput.value = '';
+            } else {
+                // 隐藏自定义输入框
+                customInput.classList.add('hidden');
+                // 更新隐藏输入框的值
+                hiddenInput.value = select.value;
+                generatePrompt();
+            }
+        }
+        
+        // 显示错误提示
+        function showError(message) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="text-center py-8 text-danger">
+                    <i class="fa fa-exclamation-triangle text-4xl mb-4"></i>
+                    <p class="text-lg font-medium mb-2">出错了</p>
+                    <p class="text-sm text-gray-500">${message}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
