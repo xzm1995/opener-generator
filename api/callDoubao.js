@@ -1,43 +1,39 @@
-module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: '只支持 POST 请求' });
-    }
-
-    const { apiKey, model, messages, temperature, maxTokens } = req.body;
-
-    if (!apiKey || !model || !messages) {
-        return res.status(400).json({ error: '缺少必要参数：apiKey、model 或 messages' });
+// Cloudflare Workers 版本
+export default {
+  async fetch(request, env, ctx) {
+    // 只处理 POST 请求
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
     }
 
     try {
-        const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: messages,
-                temperature: parseFloat(temperature) || 0.7,
-                max_tokens: parseInt(maxTokens) || 2000
-            })
-        });
+      const { model, messages, temperature, max_tokens } = await request.json();
 
-        const data = await response.json();
+      const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${env.ARK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: temperature || 0.7,
+          max_tokens: max_tokens || 2048
+        })
+      });
 
-        if (!response.ok) {
-            return res.status(response.status).json({
-                error: data.error?.message || '豆包API调用失败',
-                details: data
-            });
-        }
+      const data = await response.json();
+      
+      return new Response(JSON.stringify(data), {
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-        return res.status(200).json(data);
     } catch (error) {
-        return res.status(500).json({
-            error: '服务器内部错误',
-            details: error.message
-        });
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
+  }
 };
