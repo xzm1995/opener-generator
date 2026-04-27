@@ -1,24 +1,8 @@
 {
   "version": 2,
-  "name": "opener-generator",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/opener-v3.html" }
-  ],
   "functions": {
     "api/callDoubao.js": {
-      "runtime": "nodejs18.x",
-      "memory": 256,
       "maxDuration": 30
     }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
-      ]
-    }
-  ]
+  }
 }
