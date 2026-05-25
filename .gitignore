@@ -1,0 +1,7 @@
+.workbuddy/
+opener-v3-20*-*.html
+opener-v3-backup.html
+creator.html
+deploy.bat
+server.js
+*.bat
